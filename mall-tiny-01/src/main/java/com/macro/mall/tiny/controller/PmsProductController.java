@@ -1,5 +1,6 @@
 package com.macro.mall.tiny.controller;
 
+import com.macro.mall.tiny.common.api.CommonPage;
 import com.macro.mall.tiny.common.api.CommonResult;
 import com.macro.mall.tiny.mbg.model.PmsBrand;
 import com.macro.mall.tiny.mbg.model.PmsProduct;
@@ -9,9 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,5 +30,61 @@ public class PmsProductController {
         return CommonResult.success(productService.listAllProduct());
     }
 
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult createProduct(@RequestBody PmsProduct pmsProduct) {
+        CommonResult commonResult;
+        int count = productService.createProduct(pmsProduct);
+        if (count == 1) {
+            commonResult = CommonResult.success(pmsProduct);
+            LOGGER.debug("createProduct success:{}", pmsProduct);
+        } else {
+            commonResult = CommonResult.failed("操作失败");
+            LOGGER.debug("createProduct failed:{}", pmsProduct);
+        }
+        return commonResult;
+    }
+
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult updateBrand(@PathVariable("id") Long id, @RequestBody PmsProduct pmsProduct, BindingResult result) {
+        CommonResult commonResult;
+        int count = productService.updateProduct(id, pmsProduct);
+        if (count == 1) {
+            commonResult = CommonResult.success(pmsProduct);
+            LOGGER.debug("updateProduct success:{}", pmsProduct);
+        } else {
+            commonResult = CommonResult.failed("操作失败");
+            LOGGER.debug("updateProduct failed:{}", pmsProduct);
+        }
+        return commonResult;
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult deleteProduct(@PathVariable("id") Long id) {
+        int count = productService.deleteProduct(id);
+        if (count == 1) {
+            LOGGER.debug("deleteProduct success :id={}", id);
+            return CommonResult.success(null);
+        } else {
+            LOGGER.debug("deleteProduct failed :id={}", id);
+            return CommonResult.failed("操作失败");
+        }
+    }
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<CommonPage<PmsProduct>> listBrand(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                        @RequestParam(value = "pageSize", defaultValue = "3") Integer pageSize) {
+        List<PmsProduct> productList = productService.listProduct(pageNum, pageSize);
+        return CommonResult.success(CommonPage.restPage(productList));
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<PmsProduct> brand(@PathVariable("id") Long id) {
+        return CommonResult.success(productService.getProduct(id));
+    }
 
 }

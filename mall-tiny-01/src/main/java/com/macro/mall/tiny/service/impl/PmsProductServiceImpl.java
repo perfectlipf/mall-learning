@@ -1,5 +1,6 @@
 package com.macro.mall.tiny.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.macro.mall.tiny.mbg.mapper.PmsBrandMapper;
 import com.macro.mall.tiny.mbg.mapper.PmsProductMapper;
 import com.macro.mall.tiny.mbg.model.PmsBrand;
@@ -27,5 +28,25 @@ public class PmsProductServiceImpl implements PmsProductService {
         return productMapper.selectByPrimaryKey(id);
     }
 
+    @Override
+    public int createProduct(PmsProduct product) {
+        return productMapper.insertSelective(product);
+    }
 
+    @Override
+    public int updateProduct(Long id, PmsProduct product) {
+        product.setId(id);
+        return productMapper.updateByPrimaryKeySelective(product);
+    }
+
+    @Override
+    public int deleteProduct(Long id) {
+        return productMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public List<PmsProduct> listProduct(int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return productMapper.selectByExample(new PmsProductExample());
+    }
 }
